@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Philadelphia Urbanism Events</title>
+  <meta name="description" content="Subscribe to meetings, hearings, rides and public-space events from Philadelphia urbanism groups and agencies, all in one calendar.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b6e69'/%3E%3Crect x='7' y='9' width='18' height='16' rx='2' fill='none' stroke='white' stroke-width='2.4'/%3E%3Cpath d='M7 14h18M12 6v5M20 6v5' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <div>
+        <h1>Philadelphia Urbanism Events</h1>
+        <p class="lede">Meetings, hearings, rides and public-space events from Philadelphia's urbanist groups and public agencies, gathered into calendars you can subscribe to. Updated every morning.</p>
+      </div>
+      <a class="button primary header-cta" data-submit-calendar data-submit-calendar-link target="_blank" rel="noopener" hidden>Submit a calendar</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="categories-heading">
+      <h2 id="categories-heading">Subscribe by category</h2>
+      <p class="section-note">Each category is its own Google Calendar, so you can turn them on and off separately in your calendar app.</p>
+      <div id="category-cards" class="cards" aria-busy="true">
+        <p class="muted">Loading…</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="builder-heading" class="builder">
+      <h2 id="builder-heading">Build your own feed</h2>
+      <p class="section-note">Pick the organizations you follow and get one calendar link with just their events.</p>
+
+      <div class="builder-grid">
+        <form id="picker" class="picker" aria-label="Organizations to include">
+          <p class="muted">Loading…</p>
+        </form>
+
+        <aside class="output" aria-live="polite">
+          <div class="output-panel">
+            <p id="selection-count" class="selection-count"></p>
+            <label class="field-label" for="feed-url">Your feed link</label>
+            <div class="copy-row">
+              <input id="feed-url" type="text" readonly spellcheck="false">
+              <button type="button" id="copy-feed" class="button">Copy</button>
+            </div>
+            <div class="subscribe-buttons">
+              <a id="add-google" class="button primary" target="_blank" rel="noopener">Add to Google Calendar</a>
+              <a id="add-apple" class="button">Apple Calendar</a>
+              <a id="add-outlook" class="button" target="_blank" rel="noopener">Outlook</a>
+            </div>
+            <p class="fine-print">Calendar apps check subscribed links on their own schedule. Google can take up to a day to pick up new events.</p>
+            <p class="fine-print">To share this selection, copy this page's address; it includes your choices.</p>
+          </div>
+
+          <div class="preview">
+            <h3>Coming up in your feed</h3>
+            <ol id="preview-list" class="preview-list"></ol>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Events come from each organization's own website. Details can change, so check the event's link before you go.</p>
+      <p data-submit-calendar hidden>Know a calendar we're missing? <a data-submit-calendar-link target="_blank" rel="noopener">Submit a calendar</a>.</p>
+      <p class="credit">Made with <span role="img" aria-label="love">♥</span> by <a href="https://helenvholmes.com" target="_blank" rel="noopener">@helenvholmes</a></p>
+    </div>
+  </footer>
+</body>
+</html>
