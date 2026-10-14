@@ -33,12 +33,34 @@ export function hasGoogleCredentials(): boolean {
   return Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 }
 
+/**
+ * Reads the service-account key from GOOGLE_SERVICE_ACCOUNT_KEY, as raw JSON or
+ * base64. Tolerates common paste slips (surrounding quotes or whitespace, or the
+ * "GOOGLE_SERVICE_ACCOUNT_KEY=" prefix), and never includes the key in errors.
+ */
+function serviceAccountCredentials(): { client_email: string; private_key: string } {
+  let value = (process.env.GOOGLE_SERVICE_ACCOUNT_KEY ?? "").trim();
+  value = value.replace(/^GOOGLE_SERVICE_ACCOUNT_KEY=/, "").replace(/^(['"])(.*)\1$/s, "$2").trim();
+  if (!value) throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY is not set (see .env.example).");
+
+  const json = value.startsWith("{") ? value : Buffer.from(value.replace(/\s+/g, ""), "base64").toString("utf8");
+  let credentials: { client_email?: string; private_key?: string };
+  try {
+    credentials = JSON.parse(json);
+  } catch {
+    throw new Error(
+      `GOOGLE_SERVICE_ACCOUNT_KEY is not a valid service-account key: it should be the key file's JSON or that JSON base64-encoded (got ${value.length} characters).`,
+    );
+  }
+  if (!credentials.client_email || !credentials.private_key) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY is JSON but not a service-account key (no client_email or private_key).");
+  }
+  return credentials as { client_email: string; private_key: string };
+}
+
 export function googleClientFromEnv(): calendar_v3.Calendar {
-  const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (!rawKey) throw new Error("Set GOOGLE_SERVICE_ACCOUNT_KEY (see .env.example).");
-  const keyJson = rawKey.trim().startsWith("{") ? rawKey : Buffer.from(rawKey, "base64").toString("utf8");
   const googleAuth = new auth.GoogleAuth({
-    credentials: JSON.parse(keyJson),
+    credentials: serviceAccountCredentials(),
     scopes: ["https://www.googleapis.com/auth/calendar.events"],
   });
   return calendar({ version: "v3", auth: googleAuth });
