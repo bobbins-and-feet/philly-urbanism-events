@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+service-account*.json
+*.json.key
+
+# Google names downloaded keys after the project
+philly-urbanism-events-*.json

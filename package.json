@@ -1,0 +1,30 @@
+{
+  "name": "philadelphia-urbanism-events",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "tsx scripts/sync.ts",
+    "dry-run": "tsx scripts/sync.ts --dry-run",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx scripts/dev.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@googleapis/calendar": "^16.0.0",
+    "cheerio": "^1.1.0",
+    "fast-xml-parser": "^5.11.2",
+    "ical-generator": "^10.2.0",
+    "luxon": "^3.7.2",
+    "node-ical": "^0.26.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.7.6",
+    "@types/node": "^20.19.43",
+    "@vercel/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "license": "MIT"
+}

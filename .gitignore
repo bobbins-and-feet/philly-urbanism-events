@@ -1,0 +1,11 @@
+node_modules/
+.vercel/
+
+# Secrets: environment files and Google service-account keys
+.env
+.env.*
+!.env.example
+*.json.key
+service-account*.json
+# Google names downloaded keys after the project, e.g. philly-urbanism-events-dedc301f446a.json
+philly-urbanism-events-*.json
