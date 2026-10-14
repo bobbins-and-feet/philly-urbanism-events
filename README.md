@@ -38,6 +38,7 @@ Rules the sync follows:
 | The four calendars | The group's shared Google account | IDs are in `src/categories.ts`. |
 | Google Cloud project and the `calendar-sync` service account | The group's shared Google account | The service account is what the sync uses to write to the calendars. |
 | "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. |
+| Visitor stats | Vercel → **Analytics** tab | Vercel Web Analytics: cookieless page-view counts, no consent banner needed. Loaded by the snippet at the top of `public/index.html`. |
 | Secrets | Vercel → Settings → Environment Variables | `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. Never in the repo. |
 | Sync schedule | `vercel.json` | Daily at 10:00 UTC: 6 am Eastern in summer, 5 am in winter. |
 
