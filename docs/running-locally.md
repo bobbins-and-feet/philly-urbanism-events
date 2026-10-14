@@ -92,6 +92,7 @@ When you're done with the project, delete your key on the service account's **Ke
 | `npm run sync` | Fetch every source and write the changes to the calendars. Needs a key. |
 | `npm run dev` | Serve the site and API at http://localhost:3000. |
 | `npm run typecheck` | Check the TypeScript. |
+| `npm run og-image` | Re-render the link-preview image and home-screen icon from `assets/`. Needs Google Chrome. |
 
 ## Where things are
 
@@ -107,7 +108,8 @@ src/
   googleCalendar.ts  writes events to the calendars
   feed.ts            builds custom feeds from the calendars
   site.ts            site settings (the "Submit a calendar" form link)
-public/              the home page: index.html, styles.css, app.js
+public/              the home page: index.html, styles.css, app.js, and images
+assets/              sources for the link-preview image and icon
 scripts/             the dry-run, sync and dev-server commands
 vercel.json          cron schedule and routes
 ```

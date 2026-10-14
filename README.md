@@ -152,6 +152,7 @@ Set a new random value (`openssl rand -hex 32`) in Vercel's environment variable
 ### Change the site
 
 - **The page itself** is plain HTML, CSS and JavaScript in `public/`.
+- **The link-preview card** (what shows when someone shares the link) is `public/og-image.png`, made from `assets/og-image.html` by `npm run og-image`. Its text and description are the `og:` and `twitter:` tags in `public/index.html`. If you change the number of sources, update both.
 - **The "Submit a calendar" form link** is in `src/site.ts`. Leave it empty to hide the button.
 - **The sync schedule** is the `crons` entry in `vercel.json`. The Hobby plan allows one run a day, and may start it any time within the scheduled hour.
 

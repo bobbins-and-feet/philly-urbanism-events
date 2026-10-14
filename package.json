@@ -6,7 +6,8 @@
     "sync": "tsx scripts/sync.ts",
     "dry-run": "tsx scripts/sync.ts --dry-run",
     "typecheck": "tsc --noEmit",
-    "dev": "tsx scripts/dev.ts"
+    "dev": "tsx scripts/dev.ts",
+    "og-image": "sh scripts/og-image.sh"
   },
   "engines": {
     "node": ">=20"
