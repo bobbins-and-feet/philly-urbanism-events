@@ -3,7 +3,18 @@
   "crons": [{ "path": "/api/sync", "schedule": "0 10 * * *" }],
   "functions": {
     "api/sync.ts": { "maxDuration": 60 },
-    "api/feed.ts": { "maxDuration": 30 }
+    "api/feed.ts": { "maxDuration": 30 },
+    "api/home.ts": { "maxDuration": 30, "includeFiles": "templates/**" }
   },
-  "rewrites": [{ "source": "/feed.ics", "destination": "/api/feed" }]
+  "rewrites": [
+    { "source": "/", "destination": "/api/home" },
+    { "source": "/feed.ics", "destination": "/api/feed" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": ".*\\.vercel\\.app" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    }
+  ]
 }

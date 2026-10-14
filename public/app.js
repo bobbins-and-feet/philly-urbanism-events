@@ -248,12 +248,21 @@ async function loadPreview(ids) {
 
 // ----- Start -----
 
+async function loadCatalog() {
+  // The server embeds the catalog in the page; fetch it only if it's missing.
+  const embedded = document.getElementById("catalog-data");
+  if (embedded) return JSON.parse(embedded.textContent);
+  const response = await fetch("/api/catalog");
+  if (!response.ok) throw new Error(String(response.status));
+  return response.json();
+}
+
 async function start() {
   try {
-    const response = await fetch("/api/catalog");
-    if (!response.ok) throw new Error(String(response.status));
-    catalog = await response.json();
+    catalog = await loadCatalog();
   } catch {
+    // Keep whatever the server rendered rather than replacing it with an error.
+    if (document.querySelector("#category-cards .card")) return;
     const message = el("p", { class: "muted" }, "Couldn't load the list of organizations. Try reloading the page.");
     document.getElementById("category-cards").replaceChildren(message);
     document.getElementById("picker").replaceChildren(message.cloneNode(true));

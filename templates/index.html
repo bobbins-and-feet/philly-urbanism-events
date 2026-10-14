@@ -1,10 +1,11 @@
 <!doctype html>
+<!-- Template for the home page. api/home.ts replaces each "ssr:" placeholder comment with rendered content. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Philadelphia Urbanism Events</title>
-  <meta name="description" content="Subscribe to meetings, hearings, rides and public-space events from Philadelphia urbanism groups and agencies, all in one calendar.">
+  <title>Philadelphia Urbanism Events: City Council, SEPTA, bike rides &amp; more</title>
+  <meta name="description" content="Free calendars of Philadelphia City Council hearings, SEPTA and planning meetings, group bike rides and urbanist advocacy events. Subscribe in Google, Apple or Outlook.">
   <link rel="canonical" href="https://phillyurbanismevents.com/">
   <meta name="theme-color" content="#0b6e69">
 
@@ -35,6 +36,7 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+<!--ssr:head-->
 </head>
 <body>
   <header class="site-header">
@@ -51,9 +53,7 @@
     <section aria-labelledby="categories-heading">
       <h2 id="categories-heading">Subscribe by category</h2>
       <p class="section-note">Each category is its own Google Calendar, so you can turn them on and off separately in your calendar app.</p>
-      <div id="category-cards" class="cards" aria-busy="true">
-        <p class="muted">Loading…</p>
-      </div>
+      <div id="category-cards" class="cards"><!--ssr:cards--></div>
     </section>
 
     <section aria-labelledby="builder-heading" class="builder">
@@ -61,13 +61,11 @@
       <p class="section-note">Pick the organizations you follow and get one calendar link with just their events.</p>
 
       <div class="builder-grid">
-        <form id="picker" class="picker" aria-label="Organizations to include">
-          <p class="muted">Loading…</p>
-        </form>
+        <form id="picker" class="picker" aria-label="Organizations to include"><!--ssr:picker--></form>
 
         <aside class="output" aria-live="polite">
           <div class="output-panel">
-            <p id="selection-count" class="selection-count"></p>
+            <p id="selection-count" class="selection-count"><!--ssr:count--></p>
             <label class="field-label" for="feed-url">Your feed link</label>
             <div class="copy-row">
               <input id="feed-url" type="text" readonly spellcheck="false">
@@ -84,7 +82,7 @@
 
           <div class="preview">
             <h3>Coming up in your feed</h3>
-            <ol id="preview-list" class="preview-list"></ol>
+            <ol id="preview-list" class="preview-list"><!--ssr:preview--></ol>
           </div>
         </aside>
       </div>
