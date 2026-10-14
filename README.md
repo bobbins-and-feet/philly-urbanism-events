@@ -1,6 +1,6 @@
 # Philadelphia Urbanism Events
 
-Meetings, hearings, rides and public-space events from Philadelphia's urbanist groups and public agencies, gathered into calendars anyone can subscribe to.
+Meetings, hearings, rides and public-space events from Philadelphia's urbanist groups and public agencies, gathered into calendars anyone can subscribe to: **[phillyurbanismevents.com](https://phillyurbanismevents.com)**.
 
 This README is the playbook for looking after the project: how it works, where everything lives, and what to do when something needs attention. To run it on your own computer, see [Running locally](docs/running-locally.md).
 
@@ -34,6 +34,7 @@ Rules the sync follows:
 |---|---|---|
 | Code | [github.com/bobbins-and-feet/philly-urbanism-events](https://github.com/bobbins-and-feet/philly-urbanism-events) | Public, MIT licensed. Pushing to `main` deploys. |
 | Website and daily sync | Vercel project `philly-urbanism-events` (team "Helen Holmes' projects", Hobby plan) | Settings, logs and cron history are in the Vercel dashboard. |
+| Domain | `phillyurbanismevents.com`, registered at Namecheap | DNS in Namecheap's **Advanced DNS**: an A record for `@` to `76.76.21.21` and a CNAME for `www` to `cname.vercel-dns.com`. In Vercel, `www` redirects to the main domain. Keep `philly-urbanism-events.vercel.app` working too; some early subscriptions use it. |
 | The four calendars | The group's shared Google account | IDs are in `src/categories.ts`. |
 | Google Cloud project and the `calendar-sync` service account | The group's shared Google account | The service account is what the sync uses to write to the calendars. |
 | "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. |
@@ -87,7 +88,7 @@ One failed day is usually a site being briefly down. If the same source fails se
 In Vercel, go to **Settings → Cron Jobs** and click **Run** next to `/api/sync`. Or, with the `CRON_SECRET` value:
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" https://YOUR-SITE.vercel.app/api/sync
+curl -H "Authorization: Bearer $CRON_SECRET" https://phillyurbanismevents.com/api/sync
 ```
 
 ### Fix a broken source
@@ -159,6 +160,7 @@ Set a new random value (`openssl rand -hex 32`) in Vercel's environment variable
 To give the project to a new maintainer:
 
 - [ ] **GitHub:** make them an owner of the repo, or of the `bobbins-and-feet` org.
+- [ ] **Domain:** transfer `phillyurbanismevents.com` to their Namecheap account (or another registrar), keeping the DNS records above, and make sure auto-renew is on.
 - [ ] **Vercel:** Hobby projects can't be shared. Either transfer the project to their account (**Settings → Advanced → Transfer**), or move it to a team on a paid plan. Bring the two environment variables along, and check the cron job is listed afterwards.
 - [ ] **Google:** pass on access to the group's shared Google account, including its recovery phone and email. Or add their own account as an Owner of the Cloud project, and with "Make changes and manage sharing" on each of the four calendars and the form.
 - [ ] **Keys:** have them create their own service-account key, and delete yours.
