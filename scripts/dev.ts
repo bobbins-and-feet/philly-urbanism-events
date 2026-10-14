@@ -20,11 +20,13 @@ if (existsSync(".env")) {
 
 const { GET: feed } = await import("../api/feed.js");
 const { GET: catalog } = await import("../api/catalog.js");
+const { GET: home } = await import("../api/home.js");
 
 const routes: Record<string, (request: Request) => Response | Promise<Response>> = {
   "/api/feed": feed,
   "/feed.ics": feed,
   "/api/catalog": catalog,
+  "/": home,
 };
 
 const TYPES: Record<string, string> = {
@@ -33,6 +35,8 @@ const TYPES: Record<string, string> = {
   ".js": "text/javascript; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml; charset=utf-8",
 };
 
 const port = Number(process.env.PORT ?? 3000);
@@ -48,7 +52,7 @@ createServer(async (req, res) => {
       return;
     }
 
-    const path = normalize(join("public", url.pathname === "/" ? "index.html" : url.pathname));
+    const path = normalize(join("public", url.pathname));
     if (!path.startsWith("public") || !existsSync(path)) {
       res.writeHead(404).end("Not found");
       return;

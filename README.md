@@ -38,7 +38,7 @@ Rules the sync follows:
 | The four calendars | The group's shared Google account | IDs are in `src/categories.ts`. |
 | Google Cloud project and the `calendar-sync` service account | The group's shared Google account | The service account is what the sync uses to write to the calendars. |
 | "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. |
-| Visitor stats | Vercel → **Analytics** tab | Vercel Web Analytics: cookieless page-view counts, no consent banner needed. Loaded by the snippet at the top of `public/index.html`. |
+| Visitor stats | Vercel → **Analytics** tab | Vercel Web Analytics: cookieless page-view counts, no consent banner needed. Loaded by the snippet at the top of `templates/index.html`. |
 | Secrets | Vercel → Settings → Environment Variables | `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. Never in the repo. |
 | Sync schedule | `vercel.json` | Daily at 10:00 UTC: 6 am Eastern in summer, 5 am in winter. |
 
@@ -152,8 +152,9 @@ Set a new random value (`openssl rand -hex 32`) in Vercel's environment variable
 
 ### Change the site
 
-- **The page itself** is plain HTML, CSS and JavaScript in `public/`.
-- **The link-preview card** (what shows when someone shares the link) is `public/og-image.png`, made from `assets/og-image.html` by `npm run og-image`. Its text and description are the `og:` and `twitter:` tags in `public/index.html`. If you change the number of sources, update both.
+- **The page itself** is the template `templates/index.html` plus `public/styles.css` and `public/app.js`. `api/home.ts` serves it at `/`, filling in the categories, organizations, next few events and their structured data on the server, so search engines see them without running JavaScript. `src/render.ts` builds that HTML to match what `public/app.js` builds in the browser; change both together. The CDN caches the page for an hour.
+- **Search:** `public/robots.txt` and `public/sitemap.xml` are static. The page includes schema.org `Event` data for the next 60 days (events with a location only), which can get them into Google's event listings. The `.vercel.app` addresses send `X-Robots-Tag: noindex` (see `vercel.json`) so only phillyurbanismevents.com is indexed. Register the site in Google Search Console and Bing Webmaster Tools with the shared Google account (verified by a DNS TXT record in Namecheap), and check there for search traffic and indexing problems.
+- **The link-preview card** (what shows when someone shares the link) is `public/og-image.png`, made from `assets/og-image.html` by `npm run og-image`. Its text and description are the `og:` and `twitter:` tags in `templates/index.html`. If you change the number of sources, update both.
 - **The "Submit a calendar" form link** is in `src/site.ts`. Leave it empty to hide the button.
 - **The sync schedule** is the `crons` entry in `vercel.json`. The Hobby plan allows one run a day, and may start it any time within the scheduled hour.
 

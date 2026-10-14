@@ -38,7 +38,7 @@ Then open http://localhost:3000. Without credentials, feeds and the "Coming up" 
 
 The dev server doesn't reload code changes:
 - **Files in `src/` or `api/`:** stop it with Ctrl+C and start it again.
-- **Files in `public/`:** take effect on reload, but the browser caches `/api/catalog` for 5 minutes, so use a hard refresh (Cmd+Shift+R) if a change doesn't show.
+- **Files in `public/` or `templates/`:** take effect on reload. If a change doesn't show, do a hard refresh (Cmd+Shift+R).
 
 ### Check types
 
@@ -100,6 +100,7 @@ When you're done with the project, delete your key on the service account's **Ke
 api/                 Vercel functions
   sync.ts            daily cron job: fetch sources, update calendars
   feed.ts            custom feeds (/feed.ics) and the page's event preview
+  home.ts            the home page, rendered on the server
   catalog.ts         categories and sources for the page
 src/
   sources/           one adapter per site, plus index.ts, the list of sources
@@ -107,8 +108,10 @@ src/
   collect.ts         runs the adapters and removes duplicates
   googleCalendar.ts  writes events to the calendars
   feed.ts            builds custom feeds from the calendars
+  render.ts          home-page HTML and structured data
   site.ts            site settings (the "Submit a calendar" form link)
-public/              the home page: index.html, styles.css, app.js, and images
+templates/index.html the home page, filled in by api/home.ts
+public/              static files: styles.css, app.js, images, robots.txt, sitemap.xml
 assets/              sources for the link-preview image and icon
 scripts/             the dry-run, sync and dev-server commands
 vercel.json          cron schedule and routes
