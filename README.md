@@ -37,9 +37,9 @@ Rules the sync follows:
 | Domain | `phillyurbanismevents.com`, registered at Namecheap | DNS in Namecheap's **Advanced DNS**: an A record for `@` to `76.76.21.21` and a CNAME for `www` to `cname.vercel-dns.com`. In Vercel, `www` redirects to the main domain. Keep `philly-urbanism-events.vercel.app` working too; some early subscriptions use it. |
 | The four calendars | The group's shared Google account | IDs are in `src/categories.ts`. |
 | Google Cloud project and the `calendar-sync` service account | The group's shared Google account | The service account is what the sync uses to write to the calendars. |
-| "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. |
+| "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. Its Apps Script turns each response into a GitHub issue; see [Review a "Submit a calendar" suggestion](#review-a-submit-a-calendar-suggestion). |
 | Visitor stats | Vercel → **Analytics** tab | Vercel Web Analytics: cookieless page-view counts, no consent banner needed. Loaded by the snippet at the top of `templates/index.html`. |
-| Secrets | Vercel → Settings → Environment Variables | `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. Never in the repo. |
+| Secrets | Vercel → Settings → Environment Variables; GitHub → Settings → Secrets; the form's Apps Script properties | Vercel: `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. GitHub: `CLAUDE_CODE_OAUTH_TOKEN` (or `ANTHROPIC_API_KEY`). Apps Script: `GITHUB_TOKEN`. Never in the repo. |
 | Sync schedule | `vercel.json` | Daily at 10:00 UTC: 6 am Eastern in summer, 5 am in winter. |
 
 ### Categories and sources
@@ -101,14 +101,24 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://phillyurbanismevents.com/ap
 
 Until it's fixed, the source's existing events stay in the calendar, but no new ones arrive. If a source can't be fixed, remove it as below.
 
-### Handle a "Submit a calendar" suggestion
+### Review a "Submit a calendar" suggestion
 
-Suggestions arrive in the form's **Responses** tab in the shared account. To be emailed about new ones, open **Responses**, click **⋮** and choose **Get email notifications for new responses**.
+Suggestions are handled mostly automatically:
 
-For each suggestion:
-1. Look at where the group posts events. An `.ics` or Google Calendar link, or a WordPress site running The Events Calendar, takes a few minutes to add. A plain HTML page needs a small scraper. A newsletter or social media account can't be pulled automatically.
-2. Add the source as below, or note it under "Some groups have no event listing" above.
-3. If they left an email address, let them know.
+1. **Someone submits the form.** An Apps Script attached to the form (`automation/form-to-issue.gs`) opens a GitHub issue labeled `calendar-submission`. The issue quotes their answers, but leaves out their email address because the repo is public; it stays in the form's **Responses** tab.
+2. **The label starts a workflow** (`.github/workflows/calendar-submission.yml`). Claude reads the submission, finds the best source of the group's events, adds it following the patterns in `src/sources/`, runs the dry run, and opens a pull request that requests your review. GitHub's review-request notification is your cue. If there's no usable source, Claude comments on the issue instead.
+3. **You review and merge.** Check the dry-run results in the pull request description, and that the change only touches source files and docs. Merging deploys it; the next daily sync adds the events. If the pull request says so, run `npm run og-image` to update the source count on the share image.
+4. **If they left an email address,** you can let them know. It's in the form's responses.
+
+Only people with write access can add labels, so a stranger opening an issue can't start the workflow. Claude is told to treat submissions as untrusted, can only use a fixed set of tools, and can't merge.
+
+To change who reviews the pull requests, edit `REVIEWER` in the workflow.
+
+#### Setting it up again
+
+- **Form script:** in the form, open **⋮ → Apps Script**, paste in `automation/form-to-issue.gs`, add a `GITHUB_TOKEN` script property, and run `installTrigger()` once. The token should be a fine-grained GitHub token for this repo only, with **Issues: Read and write**. Fine-grained tokens expire, so renew it when GitHub emails you.
+- **Claude:** add a `CLAUDE_CODE_OAUTH_TOKEN` repository secret (from `claude setup-token`), or an `ANTHROPIC_API_KEY` secret. Each submission uses a little of that account's usage.
+- **GitHub:** turn on **Allow GitHub Actions to create and approve pull requests** in the bobbins-and-feet organization's **Settings → Actions → General**, then in this repo's. Make sure the `calendar-submission` label exists.
 
 ### Add a source
 
@@ -168,7 +178,7 @@ To give the project to a new maintainer:
 - [ ] **Vercel:** Hobby projects can't be shared. Either transfer the project to their account (**Settings → Advanced → Transfer**), or move it to a team on a paid plan. Bring the two environment variables along, and check the cron job is listed afterwards.
 - [ ] **Google:** pass on access to the group's shared Google account, including its recovery phone and email. Or add their own account as an Owner of the Cloud project, and with "Make changes and manage sharing" on each of the four calendars and the form.
 - [ ] **Keys:** have them create their own service-account key, and delete yours.
-- [ ] **Form notifications:** turn on email notifications for them, and off for you.
+- [ ] **Submissions:** change `REVIEWER` in `.github/workflows/calendar-submission.yml` to their GitHub username, and replace the form script's `GITHUB_TOKEN` with one of theirs.
 - [ ] **This README:** update anything above that has changed.
 
 ## Setting up from scratch
