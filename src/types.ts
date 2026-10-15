@@ -14,6 +14,12 @@ export type CalEvent = {
   location?: string;
   url?: string;
   description?: string;
+  /**
+   * Title to use when checking for the same event listed by another source, if
+   * it differs from the title shown (e.g. "Wednesday Night Rides" for
+   * "Wednesday Night Rides: Southwest Bikeways").
+   */
+  matchTitle?: string;
   /** Other sources in the same category that list this event; set by collect(). */
   alsoListedBy?: string[];
 };
