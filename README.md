@@ -39,7 +39,7 @@ Rules the sync follows:
 | Google Cloud project and the `calendar-sync` service account | The group's shared Google account | The service account is what the sync uses to write to the calendars. |
 | "Submit a calendar" form | The group's shared Google account, in Google Forms | Its link is in `src/site.ts`. Its Apps Script turns each response into a GitHub issue; see [Review a "Submit a calendar" suggestion](#review-a-submit-a-calendar-suggestion). |
 | Visitor stats | Vercel → **Analytics** tab | Vercel Web Analytics: cookieless page-view counts, no consent banner needed. Loaded by the snippet at the top of `templates/index.html`. |
-| Secrets | Vercel → Settings → Environment Variables; GitHub → Settings → Secrets; the form's Apps Script properties | Vercel: `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. GitHub: `CLAUDE_CODE_OAUTH_TOKEN` (or `ANTHROPIC_API_KEY`). Apps Script: `GITHUB_TOKEN`. Never in the repo. |
+| Secrets | Vercel → Settings → Environment Variables; GitHub → Settings → Secrets; the form's Apps Script properties | Vercel: `GOOGLE_SERVICE_ACCOUNT_KEY` and `CRON_SECRET`. GitHub: `CLAUDE_CODE_OAUTH_TOKEN` (or `ANTHROPIC_API_KEY`) and `DISCORD_WEBHOOK_URL`. Apps Script: `GITHUB_TOKEN`. Never in the repo. |
 | Sync schedule | `vercel.json` | Daily at 10:00 UTC: 6 am Eastern in summer, 5 am in winter. |
 
 ### Categories and sources
@@ -106,7 +106,7 @@ Until it's fixed, the source's existing events stay in the calendar, but no new 
 Suggestions are handled mostly automatically:
 
 1. **Someone submits the form.** An Apps Script attached to the form (`automation/form-to-issue.gs`) opens a GitHub issue labeled `calendar-submission`. The issue quotes their answers, but leaves out their email address because the repo is public; it stays in the form's **Responses** tab.
-2. **The label starts a workflow** (`.github/workflows/calendar-submission.yml`). Claude reads the submission, finds the best source of the group's events, adds it following the patterns in `src/sources/`, runs the dry run, and opens a pull request that requests your review. GitHub's review-request notification is your cue. If there's no usable source, Claude comments on the issue instead.
+2. **The label starts a workflow** (`.github/workflows/calendar-submission.yml`). Claude reads the submission, finds the best source of the group's events, adds it following the patterns in `src/sources/`, runs the dry run, and opens a pull request that requests your review. A message in Discord (and GitHub's own review-request notification) is your cue. If there's no usable source, Claude comments on the issue instead, and Discord says so.
 3. **You review and merge.** Check the dry-run results in the pull request description, and that the change only touches source files and docs. Merging deploys it; the next daily sync adds the events. If the pull request says so, run `npm run og-image` to update the source count on the share image.
 4. **If they left an email address,** you can let them know. It's in the form's responses.
 
@@ -118,6 +118,7 @@ To change who reviews the pull requests, edit `REVIEWER` in the workflow.
 
 - **Form script:** in the form, open **⋮ → Apps Script**, paste in `automation/form-to-issue.gs`, add a `GITHUB_TOKEN` script property, and run `installTrigger()` once. The token should be a fine-grained GitHub token for this repo only, with **Issues: Read and write**. Fine-grained tokens expire, so renew it when GitHub emails you.
 - **Claude:** add a `CLAUDE_CODE_OAUTH_TOKEN` repository secret (from `claude setup-token`), or an `ANTHROPIC_API_KEY` secret. Each submission uses a little of that account's usage.
+- **Discord (optional):** in the Discord server, go to **Server Settings → Integrations → Webhooks → New Webhook**, pick the channel and copy the webhook URL. Save it as a `DISCORD_WEBHOOK_URL` repository secret. To be @-mentioned, turn on Discord's **Developer Mode** (Settings → Advanced), right-click your name, choose **Copy User ID**, and save it as a `DISCORD_USER_ID` repository *variable*.
 - **GitHub:** turn on **Allow GitHub Actions to create and approve pull requests** in the bobbins-and-feet organization's **Settings → Actions → General**, then in this repo's. Make sure the `calendar-submission` label exists.
 
 ### Add a source
@@ -210,7 +211,7 @@ Only needed to rebuild everything, for example under a different Google account.
 - **Transit Forward and phila.gov:** these adapters read page markup, so a redesign will break them. phila.gov lists only the next few events per department.
 - **Philly Bike Train and Rail Park:** both read undocumented APIs their websites use internally, which could change. A Rail Park event set to repeat is only added on its first date; none repeat today.
 - **DVRPC:** its events have no IDs, so renaming one deletes it and adds it again.
-- **Wednesday Night Rides:** reads the "Start:", "Time:" and "End:" lines on each ride page. If a post has no time, it assumes their usual 7pm. Their rides match Indego's and the Bicycle Coalition's "Wednesday Night Rides" listings through `matchTitle`, so each ride appears once.
+- **Wednesday Night Rides:** reads the "Start:", "Time:" and "End:" lines on each ride page. If a post has no time, it assumes their usual 7pm. They post each ride only a few days ahead, but Indego and the Bicycle Coalition list rides earlier as plain "Wednesday Night Rides". Those listings are credited to WNR too (`seriesTitles`), so a WNR-only feed shows upcoming rides, and once WNR posts the details its own listing replaces them (`matchTitle`).
 
 ## License
 

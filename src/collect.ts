@@ -36,10 +36,21 @@ export function duplicateKey(title: string, start: DateTime): string {
  * title), the earlier source in the list keeps it and the other is recorded in
  * its alsoListedBy, so custom feeds can still include it for either source.
  * Duplicates across categories are kept, so each category calendar is complete.
+ * Listings of a recurring event another source claims (seriesTitles) are also
+ * credited to that source.
  */
 export async function collect(window: SyncWindow, sources: Source[] = allSources): Promise<CollectedSource[]> {
   const settled = await Promise.allSettled(sources.map((source) => source.fetchEvents(window)));
   const seen = new Map<string, { event: CalEvent; sourceId: string }>();
+
+  // Recurring events a source claims as its own (see seriesTitles), by category and title.
+  const claims = new Map<string, string[]>();
+  for (const source of sources) {
+    for (const title of source.seriesTitles ?? []) {
+      const key = `${source.category}|${titleKey(title)}`;
+      claims.set(key, [...(claims.get(key) ?? []), source.id]);
+    }
+  }
 
   return settled.map((result, i): CollectedSource => {
     const source = sources[i];
@@ -60,6 +71,11 @@ export async function collect(window: SyncWindow, sources: Source[] = allSources
         continue;
       }
       seen.set(key, { event, sourceId: source.id });
+      for (const owner of claims.get(`${source.category}|${titleKey(event.matchTitle ?? event.title)}`) ?? []) {
+        if (owner !== source.id && !(event.alsoListedBy ?? []).includes(owner)) {
+          event.alsoListedBy = [...(event.alsoListedBy ?? []), owner];
+        }
+      }
       kept.push(event);
     }
     return {
