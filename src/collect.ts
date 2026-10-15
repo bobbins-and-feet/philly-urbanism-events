@@ -50,7 +50,7 @@ export async function collect(window: SyncWindow, sources: Source[] = allSources
 
     const kept: CalEvent[] = [];
     for (const event of result.value.events) {
-      const key = `${source.category}|${duplicateKey(event.title, event.start)}`;
+      const key = `${source.category}|${duplicateKey(event.matchTitle ?? event.title, event.start)}`;
       const original = seen.get(key);
       if (original) {
         const listed = original.event.alsoListedBy ?? [];
