@@ -10,6 +10,10 @@
 # or /install-github-app) or ANTHROPIC_API_KEY. It also needs "Allow GitHub
 # Actions to create and approve pull requests" turned on under
 # Settings → Actions → General.
+#
+# Optional Discord ping: a DISCORD_WEBHOOK_URL secret (Server Settings →
+# Integrations → Webhooks), and a DISCORD_USER_ID repository variable to
+# @-mention someone.
 
 name: Calendar submission
 
@@ -43,6 +47,7 @@ jobs:
       - run: npm ci
 
       - uses: anthropics/claude-code-action@v1
+        id: claude
         with:
           github_token: ${{ github.token }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -101,3 +106,35 @@ jobs:
               vercel.json, package.json, secrets or anything credential-related.
             - Never include anyone's email address in code, commits, pull requests or comments.
             - Don't merge anything. A maintainer reviews and merges.
+
+      - name: Notify Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ vars.DISCORD_USER_ID }}
+          ISSUE: ${{ github.event.issue.number }}
+          OUTCOME: ${{ steps.claude.outcome }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "No DISCORD_WEBHOOK_URL secret; skipping."
+            exit 0
+          fi
+          issue_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/issues/$ISSUE"
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          pr_url=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "calendar-submission-$ISSUE" --state open --json url --jq '.[0].url // empty')
+          pr_title=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "calendar-submission-$ISSUE" --state open --json title --jq '.[0].title // empty')
+
+          if [ -n "$pr_url" ]; then
+            message=$(printf '📅 A new calendar is ready for your review: **%s**\n%s' "$pr_title" "$pr_url")
+          elif [ "$OUTCOME" = "success" ]; then
+            message=$(printf "📭 A calendar submission couldn't be added automatically. Claude left a note:\n%s" "$issue_url")
+          else
+            message=$(printf '⚠️ The calendar submission workflow failed for %s\nLogs: %s' "$issue_url" "$run_url")
+          fi
+          if [ -n "$DISCORD_USER_ID" ]; then message="<@$DISCORD_USER_ID> $message"; fi
+
+          # allowed_mentions only lets the configured user be pinged, so text
+          # from a submission (like "@everyone") can't notify anyone else.
+          jq -n --arg content "$message" --arg user "$DISCORD_USER_ID" \
+            '{content: $content, allowed_mentions: {parse: [], users: (if $user == "" then [] else [$user] end)}}' \
+            | curl -fsS -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK_URL"

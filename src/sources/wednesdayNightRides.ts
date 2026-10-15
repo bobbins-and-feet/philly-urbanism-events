@@ -50,6 +50,8 @@ export const wednesdayNightRides: SourceAdapter = {
   id: "wednesday-night-rides",
   name: "Wednesday Night Rides",
   shortName: "WNR",
+  // Indego and the Bicycle Coalition list upcoming rides before WNR posts details.
+  seriesTitles: ["Wednesday Night Rides"],
   async fetchEvents(window) {
     const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "", isArray: (name) => name === "entry" });
     const entries: Entry[] = parser.parse(await fetchText(FEED_URL))?.feed?.entry ?? [];

@@ -43,6 +43,12 @@ export type SourceAdapter = {
   name: string;
   /** Prefix shown in event titles, e.g. "[SEPTA]". */
   shortName: string;
+  /**
+   * Names of recurring events this source runs, e.g. "Wednesday Night Rides".
+   * Other sources' listings with exactly that title count as also listed by
+   * this source, so a custom feed for it includes them before it posts its own.
+   */
+  seriesTitles?: string[];
   fetchEvents(window: SyncWindow): Promise<SourceResult>;
 };
 
