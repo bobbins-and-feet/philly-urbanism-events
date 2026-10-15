@@ -9,6 +9,7 @@ import { philaGovCalendar } from "./philaGov.js";
 import { railPark } from "./railPark.js";
 import { septa } from "./septa.js";
 import { transitForward } from "./transitForward.js";
+import { wednesdayNightRides } from "./wednesdayNightRides.js";
 import { inPhiladelphia, notAtDilworthPark, tribeSource } from "./tribe.js";
 
 function listed(category: CategoryId, homepage: string, adapter: SourceAdapter): Source {
@@ -57,6 +58,7 @@ export const sources: Source[] = [
     }),
   ),
   listed("rides", "https://www.phillybiketrain.org/", bikeTrain),
+  listed("rides", "https://www.wednightrides.org/", wednesdayNightRides),
   listed("public-space", "https://www.therailpark.org/", railPark),
 
   // Government and agencies

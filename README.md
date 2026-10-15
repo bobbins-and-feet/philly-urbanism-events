@@ -7,7 +7,7 @@ This README is the playbook for looking after the project: how it works, where e
 ## How it works
 
 ```
-14 source websites ──▶ daily sync (Vercel cron) ──▶ 4 public Google Calendars ──▶ people subscribe
+15 source websites ──▶ daily sync (Vercel cron) ──▶ 4 public Google Calendars ──▶ people subscribe
                                                               │
                                                               └──▶ website: category links + custom feeds (/feed.ics)
 ```
@@ -48,7 +48,7 @@ Rules the sync follows:
 |---|---|
 | Advocacy groups | 5th Square Advocacy, Philly Bike Action, Transit Forward Philadelphia, Clean Air Council |
 | Government & agencies | City Council, City Planning Commission, OTIS, SEPTA, DVRPC |
-| Rides & bike events | Philly Bike Train, Indego, Bicycle Coalition |
+| Rides & bike events | Philly Bike Train, Wednesday Night Rides, Indego, Bicycle Coalition |
 | Parks & public space | Friends of the Rail Park, Center City District |
 
 | Source | How it's read |
@@ -57,6 +57,7 @@ Rules the sync follows:
 | Philly Bike Action | Their calendar feed at `bikeaction.org/events/calendar/all/` |
 | Transit Forward Philadelphia | The NationBuilder events list at `www.transitforwardphilly.org/events` |
 | Philly Bike Train | The ride-tracker API behind `phillybiketrain.org`; one calendar event per ride day, with every route listed |
+| Wednesday Night Rides | The Atom feed at `wednightrides.org/feed.xml`, plus each ride's page for the start time and meeting point. Rides are posted a few days ahead. |
 | Friends of the Rail Park | The public Prismic content API behind `therailpark.org` |
 | Clean Air Council | The Events Calendar REST API at `cleanair.org`, Philadelphia venues only |
 | Philadelphia City Council | The Legistar calendar table at `phila.legistar.com`, this month and next |
@@ -199,6 +200,7 @@ Only needed to rebuild everything, for example under a different Google account.
 - **Transit Forward and phila.gov:** these adapters read page markup, so a redesign will break them. phila.gov lists only the next few events per department.
 - **Philly Bike Train and Rail Park:** both read undocumented APIs their websites use internally, which could change. A Rail Park event set to repeat is only added on its first date; none repeat today.
 - **DVRPC:** its events have no IDs, so renaming one deletes it and adds it again.
+- **Wednesday Night Rides:** reads the "Start:", "Time:" and "End:" lines on each ride page. If a post has no time, it assumes their usual 7pm. Their rides match Indego's and the Bicycle Coalition's "Wednesday Night Rides" listings through `matchTitle`, so each ride appears once.
 
 ## License
 
